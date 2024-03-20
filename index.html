@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Personal Finance Calculator</title>
+</head>
+<body>
+    <h1>Budget Planner</h1>
+    <label for="income">Monthly Income:</label>
+    <input type="number" id="income" name="income"><br><br>
+    <label for="expenses">Monthly Expenses:</label>
+    <input type="number" id="expenses" name="expenses"><br><br>
+    <button onclick="calculateBudget()">Calculate</button>
+    <p id="result"></p>
+    
+    <script>
+        function calculateBudget() {
+            var income = document.getElementById('income').value;
+            var expenses = document.getElementById('expenses').value;
+            var remaining = income - expenses;
+            document.getElementById('result').textContent = 'Remaining Budget: ' + remaining;
+        }
+    </script>
+</body>
+</html>
