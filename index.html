@@ -4,62 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic Personal Finance Calculator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"> 
 </head>
-<body>
-    <h1>Budget Planner</h1>
-    <label for="income">Monthly Income:</label>
-    <input type="number" id="income" name="income" min="0"><br><br>
-    <label for="expenses">Monthly Expenses:</label>
-    <input type="number" id="expenses" name="expenses" min="0"><br><br>
-    <button onclick="calculateBudget()">Calculate</button>
-    <p id="result"></p>
+<body onload="loadData()">
+    <div class="container">
+        <h1>Budget Planner</h1>
+        <label for="income">Monthly Income:</label>
+        <input type="number" id="income" name="income" min="0"><br>
+
+        <h2>Expenses</h2>
+        <label for="rent">Rent/Mortgage:</label>
+        <input type="number" id="rent" name="rent" min="0"><br>
+        <label for="groceries">Groceries:</label>
+        <input type="number" id="groceries" name="groceries" min="0"><br>
+        <label for="utilities">Utilities:</label>
+        <input type="number" id="utilities" name="utilities" min="0"><br>
+        <label for="transportation">Transportation:</label>
+        <input type="number" id="transportation" name="transportation" min="0"><br>
+        <label for="entertainment">Entertainment:</label>
+        <input type="number" id="entertainment" name="entertainment" min="0"><br>
+
+        <button onclick="calculateBudget()">Calculate</button>
+
+        <div id="results">
+            <p id="result"></p>
+        </div>
+    </div>
 
     <script>
         function calculateBudget() {
             var incomeInput = document.getElementById('income');
-            var expensesInput = document.getElementById('expenses');
-
             var income = parseFloat(incomeInput.value);
-            var expenses = parseFloat(expensesInput.value);
+            var resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; 
 
-            // Check for empty fields
-            if (isNaN(income) || incomeInput.value === '') {
-                alert("Please enter a valid income amount.");
+            if (isNaN(income) || incomeInput.value === '' || income < 0) {
+                alert("Please enter a valid positive income amount.");
                 incomeInput.focus();
                 return;
             }
 
-            if (isNaN(expenses) || expensesInput.value === '') {
-                alert("Please enter a valid expenses amount.");
-                expensesInput.focus();
+            var categories = ['rent', 'groceries', 'utilities', 'transportation', 'entertainment'];
+            var totalExpenses = 0;
+            var categoryExpenses = {};
+
+            for (var category of categories) {
+                var expenseInput = document.getElementById(category);
+                var expense = parseFloat(expenseInput.value) || 0; 
+
+                // Check if expense is negative
+                if (expense < 0) {
+                    alert("Expense amounts cannot be negative. Please enter a valid amount.");
+                    expenseInput.focus();
+                    return; // Prevent calculation if any input is negative
+                }
+
+                categoryExpenses[category] = expense;
+                totalExpenses += expense;
+            }
+
+            if (totalExpenses > income) {
+                alert("Total expenses should not be greater than income.");
                 return;
             }
 
-            // Check for negative values
-            if (income < 0) {
-                alert("Income cannot be negative.");
-                incomeInput.value = '';
-                incomeInput.focus();
-                return;
+            var remaining = income - totalExpenses;
+            var totalExpensesP = document.createElement('p');
+            totalExpensesP.textContent = 'Total Expenses: $' + totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            resultsDiv.appendChild(totalExpensesP);
+
+            var remainingP = document.createElement('p');
+            remainingP.textContent = 'Remaining Budget: $' + remaining.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            resultsDiv.appendChild(remainingP);
+
+            for (var category in categoryExpenses) {
+                var expenseP = document.createElement('p');
+                expenseP.textContent = `${category.charAt(0).toUpperCase() + category.slice(1)}: $${categoryExpenses[category].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                resultsDiv.appendChild(expenseP);
             }
 
-            if (expenses < 0) {
-                alert("Expenses cannot be negative.");
-                expensesInput.value = '';
-                expensesInput.focus();
-                return;
-            }
+            // Save data after successful calculation
+            saveData();
+        }
 
-            // Check if expenses are greater than income
-            if (expenses > income) {
-                alert("Expenses should not be greater than income.");
-                expensesInput.focus();
-                return;
-            }
+        function saveData() {
+            var data = {
+                income: document.getElementById('income').value,
+                rent: document.getElementById('rent').value,
+                groceries: document.getElementById('groceries').value,
+                utilities: document.getElementById('utilities').value,
+                transportation: document.getElementById('transportation').value,
+                entertainment: document.getElementById('entertainment').value
+            };
+            localStorage.setItem('budgetData', JSON.stringify(data));
+        }
 
-            var remaining = income - expenses;
-            document.getElementById('result').textContent = 'Remaining Budget: $' + remaining.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        function loadData() {
+            var data = JSON.parse(localStorage.getItem('budgetData'));
+            if (data) {
+                document.getElementById('income').value = data.income;
+                document.getElementById('rent').value = data.rent;
+                document.getElementById('groceries').value = data.groceries;
+                document.getElementById('utilities').value = data.utilities;
+                document.getElementById('transportation').value = data.transportation;
+                document.getElementById('entertainment').value = data.entertainment;
+            }
+        }
+
+        function clearData() {
+            localStorage.removeItem('budgetData');
+            document.getElementById('income').value = '';
+            document.getElementById('rent').value = '';
+            document.getElementById('groceries').value = '';
+            document.getElementById('utilities').value = '';
+            document.getElementById('transportation').value = '';
+            document.getElementById('entertainment').value = '';
+            document.getElementById('results').innerHTML = '';
         }
     </script>
 </body>
