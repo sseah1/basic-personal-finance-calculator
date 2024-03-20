@@ -4,22 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic Personal Finance Calculator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Budget Planner</h1>
     <label for="income">Monthly Income:</label>
-    <input type="number" id="income" name="income"><br><br>
+    <input type="number" id="income" name="income" min="0"><br><br>
     <label for="expenses">Monthly Expenses:</label>
-    <input type="number" id="expenses" name="expenses"><br><br>
+    <input type="number" id="expenses" name="expenses" min="0"><br><br>
     <button onclick="calculateBudget()">Calculate</button>
     <p id="result"></p>
-    
+
     <script>
         function calculateBudget() {
-            var income = document.getElementById('income').value;
-            var expenses = document.getElementById('expenses').value;
+            var incomeInput = document.getElementById('income');
+            var expensesInput = document.getElementById('expenses');
+
+            var income = parseFloat(incomeInput.value);
+            var expenses = parseFloat(expensesInput.value);
+
+            // Check for empty fields
+            if (isNaN(income) || incomeInput.value === '') {
+                alert("Please enter a valid income amount.");
+                incomeInput.focus();
+                return;
+            }
+
+            if (isNaN(expenses) || expensesInput.value === '') {
+                alert("Please enter a valid expenses amount.");
+                expensesInput.focus();
+                return;
+            }
+
+            // Check for negative values
+            if (income < 0) {
+                alert("Income cannot be negative.");
+                incomeInput.value = '';
+                incomeInput.focus();
+                return;
+            }
+
+            if (expenses < 0) {
+                alert("Expenses cannot be negative.");
+                expensesInput.value = '';
+                expensesInput.focus();
+                return;
+            }
+
+            // Check if expenses are greater than income
+            if (expenses > income) {
+                alert("Expenses should not be greater than income.");
+                expensesInput.focus();
+                return;
+            }
+
             var remaining = income - expenses;
-            document.getElementById('result').textContent = 'Remaining Budget: ' + remaining;
+            document.getElementById('result').textContent = 'Remaining Budget: $' + remaining.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
     </script>
 </body>
